@@ -81,6 +81,7 @@
                                   description = "telegram online-keeper daemon";
                                   serviceConfig = {
                                     DynamicUser = true;
+                                    StateDirectory = "online-keeper";
                                     ExecStart = lib.getExe' s.package "online-keeper";
                                     EnvironmentFile = s.environmentFile;
                                     Restart = "on-failure";
