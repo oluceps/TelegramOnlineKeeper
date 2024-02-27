@@ -18,7 +18,13 @@ api_hash = os.getenv('API_hash')
 logging.basicConfig(format='%(asctime)s %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p')
 
 async def main():
-    app = Client("user", api_id=api_id, api_hash=api_hash)
+    global app
+    if api_hash == None or api_id == None:
+        session_string = os.getenv('SESSION_STRING')
+        app = Client("user", session_string=session_string)
+    else:
+        app = Client("user", api_id=api_id, api_hash=api_hash)
+
     async with app:
         while True:
             time.sleep(CHECK_INTERVAL)
