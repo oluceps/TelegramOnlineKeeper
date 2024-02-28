@@ -6,17 +6,17 @@ Timeline Forensics Preventation
 
 Option 1: Set `$API_ID` & `$API_HASH` then `python main.py` in console.
 
-Option 2: Set `$SESSION_STRING` then run. [Details about session string](https://docs.pyrogram.org/topics/storage-engines#persisting-sessions)
+Option 2: As option 1 but set only `$SESSION_STRING`. [Details about session string](https://docs.pyrogram.org/topics/storage-engines#persisting-sessions)
 
 Option 3: If using NixOS, import the `nixosModule` and set the `environmentFile` option:
 
 ```nix
-      online-keeper.instances = [
-        {
-          name = "example";
-          environmentFile = "/home/user/.env";
-        }
-      ];
+services.online-keeper.instances = [
+  {
+    name = "example";
+    environmentFile = "/home/user/.env";
+  }
+];
 ```
 
-The `environmentFile` contains options either in option 1 or 2.
+The `environmentFile` must contain environments either in option 1 or 2. [Details about EnvironmentFile](https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html#EnvironmentFile=)
