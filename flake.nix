@@ -5,6 +5,7 @@
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     devenv.url = "github:cachix/devenv";
     poetry2nix.url = "github:nix-community/poetry2nix";
+    naersk.url = "github:nix-community/naersk";
   };
 
   nixConfig = {
@@ -12,7 +13,7 @@
     extra-substituters = "https://devenv.cachix.org";
   };
 
-  outputs = inputs@{ flake-parts, devenv, poetry2nix, nixpkgs, ... }:
+  outputs = inputs@{ flake-parts, devenv, poetry2nix, nixpkgs, naersk, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
       imports = [
         inputs.devenv.flakeModule
@@ -20,10 +21,19 @@
       systems = [ "x86_64-linux" "aarch64-linux" ];
       perSystem = { config, self', inputs', pkgs, system, ... }:
         {
-          packages.default = (poetry2nix.lib.mkPoetry2Nix {
-            inherit pkgs;
-          }).mkPoetryApplication {
-            projectDir = ./.;
+          packages = rec{
+            default = rust;
+            legacy = (poetry2nix.lib.mkPoetry2Nix {
+              inherit pkgs;
+            }).mkPoetryApplication {
+              projectDir = ./.;
+            };
+
+            rust =
+              let naersk' = pkgs.callPackage naersk { };
+              in naersk'.buildPackage {
+                src = ./.;
+              };
           };
 
           # broken `nix flake show` but doesn't matter.
@@ -59,6 +69,7 @@
                             options = {
                               name = mkOption { type = types.str; };
                               package = mkPackageOption perSystem.config.packages "default" { };
+                              sessionFile = mkOption { type = types.str; default = ""; };
                               environmentFile = mkOption { type = types.str; default = ""; };
                             };
                           });
@@ -81,9 +92,10 @@
                                   description = "telegram online-keeper daemon";
                                   serviceConfig = {
                                     DynamicUser = true;
-                                    StateDirectory = "online-keeper";
-                                    ExecStart = lib.getExe' s.package "online-keeper";
+                                    LoadCredential = [ "session:${s.sessionFile}" ];
+                                    Environment = [ "SESSION_FILE=/run/credentials/online-keeper-${s.name}.service/session" ];
                                     EnvironmentFile = s.environmentFile;
+                                    ExecStart = lib.getExe' s.package "tg-online-keeper";
                                     Restart = "on-failure";
                                   };
                                 };

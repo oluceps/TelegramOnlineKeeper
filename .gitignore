@@ -3,3 +3,8 @@
 /.env
 *.session
 /result
+
+
+# Added by cargo
+
+/target
