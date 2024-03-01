@@ -4,7 +4,6 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
     devenv.url = "github:cachix/devenv";
-    poetry2nix.url = "github:nix-community/poetry2nix";
     naersk.url = "github:nix-community/naersk";
   };
 
@@ -13,7 +12,7 @@
     extra-substituters = "https://devenv.cachix.org";
   };
 
-  outputs = inputs@{ flake-parts, devenv, poetry2nix, nixpkgs, naersk, ... }:
+  outputs = inputs@{ flake-parts, devenv, nixpkgs, naersk, ... }:
     flake-parts.lib.mkFlake { inherit inputs; } ({ moduleWithSystem, ... }: {
       imports = [
         inputs.devenv.flakeModule
@@ -23,11 +22,6 @@
         {
           packages = rec{
             default = rust;
-            legacy = (poetry2nix.lib.mkPoetry2Nix {
-              inherit pkgs;
-            }).mkPoetryApplication {
-              projectDir = ./.;
-            };
 
             rust =
               let naersk' = pkgs.callPackage naersk { };
