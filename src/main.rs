@@ -48,6 +48,12 @@ async fn async_main() -> Result<()> {
            // but it will recalculate everytime the window got inactive.
     };
 
+    let pos = if let Ok(val) = var("POSSIBLE") {
+        val.parse::<f32>()?
+    } else {
+        0.05 // when online randomly offline
+    };
+
     println!("Connecting to Telegram...");
 
     let client = Client::connect(Config {
@@ -113,9 +119,18 @@ async fn async_main() -> Result<()> {
                             .invoke(&tl::functions::account::UpdateStatus { offline: false })
                             .await?
                     );
-                    ()
                 }
-                Some(enums::UserStatus::Online(_)) => (), // TODO: randomly offline
+                Some(enums::UserStatus::Online(_)) => {
+                    let rand = fastrand::f32().abs() % 1.0;
+
+                    if rand <= pos {
+                        dbg!(
+                            client
+                                .invoke(&tl::functions::account::UpdateStatus { offline: true })
+                                .await?
+                        );
+                    }
+                }
                 _ => (),
             }
         } else {
