@@ -110,7 +110,7 @@ async fn async_main() -> Result<()> {
             .await?;
 
         if let tl::enums::User::User(types::User { status, .. }) =
-            users.get(0).expect("never empty")
+            users.first().expect("never empty")
         {
             match status {
                 Some(enums::UserStatus::Offline(_)) => {
