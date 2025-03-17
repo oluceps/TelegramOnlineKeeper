@@ -74,7 +74,7 @@
               config = mkIf (cfg.instances != [ ]) {
                 systemd.services = lib.mapAttrs' (
                   name: opts:
-                  nameValuePair name {
+                  nameValuePair "online-keeper-${name}" {
                     wantedBy = [ "multi-user.target" ];
                     after = [ "network-online.target" ];
                     wants = [ "network-online.target" ];
