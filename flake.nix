@@ -68,7 +68,7 @@
                       };
                     }
                   );
-                  default = [ ];
+                  default = { };
                 };
               };
               config = mkIf (cfg.instances != [ ]) {
